@@ -23,4 +23,15 @@ __pycache__
 
 .env
 
+./frontend/node_modules  
+./vectorstore
+./learning_modules
+./mindmaps
+./exam_papers
+./podcasts
+./chat_sessions
+./chat_history
+
+
+
 
