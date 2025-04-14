@@ -15,11 +15,13 @@ import remarkMath from 'remark-math'
 import rehypeMathjax from 'rehype-mathjax'
 
 // Import new components
-import LandingPage from './LandingPage'
+
 import MindMap from './components/MindMap'
 import LearningModule from './components/LearningModule'
 import PodcastPlayer from './components/PodcastPlayer'
 import ExamPaperUploader from './components/ExamPaperUploader'
+import Landing from './pages/landing-page'
+import LandingPage from './components/LandingPage'
 
 // Define MathJax configuration options for better rendering
 const mathJaxOptions = {
