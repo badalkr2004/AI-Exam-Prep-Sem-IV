@@ -161,7 +161,7 @@ const ExamPaperUploader: React.FC<ExamPaperUploaderProps> = ({ onUploadComplete 
           formData.append('year', JSON.stringify(metadata.year));
           
 
-          await axios.post('http://localhost:8000/exam/upload', formData);
+          await axios.post('https://ai-backend.bitbrains.fun/exam/upload', formData);
           
           // Update status for this file
           setFiles(prevFiles => {
