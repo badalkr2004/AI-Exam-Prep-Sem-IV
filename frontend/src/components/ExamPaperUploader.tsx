@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import axios from 'axios';
-import { FiUpload, FiTrash2, FiCheck, FiX, FiLoader } from 'react-icons/fi';
 import './ExamPaperUploader.css';
+import { Upload, Check, X, Loader, Trash } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeMathjax from 'rehype-mathjax';
@@ -221,7 +221,7 @@ const ExamPaperUploader: React.FC<ExamPaperUploaderProps> = ({ onUploadComplete 
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <FiUpload size={48} color="#4F46E5" />
+        <Upload size={48} className='mx-auto' color="#4F46E5" />
         <p>Drag & drop PDF files here or</p>
         <button type="button" onClick={handleFileButtonClick} className="file-button">
           Select Files
@@ -294,9 +294,9 @@ const ExamPaperUploader: React.FC<ExamPaperUploaderProps> = ({ onUploadComplete 
                 </div>
 
                 <div className="file-actions">
-                  {fileItem.status === 'success' && <FiCheck size={18} color="green" />}
-                  {fileItem.status === 'error' && <FiX size={18} color="red" />}
-                  {fileItem.status === 'uploading' && <FiLoader size={18} color="blue" />}
+                  {fileItem.status === 'success' && <Check size={18} color="green" />}
+                  {fileItem.status === 'error' && <X size={18} color="red" />}
+                  {fileItem.status === 'uploading' && <Loader size={18} color="blue" className='spin-in' />}
                   
                   <button 
                     type="button" 
@@ -304,7 +304,7 @@ const ExamPaperUploader: React.FC<ExamPaperUploaderProps> = ({ onUploadComplete 
                     className="remove-button"
                     disabled={isUploading}
                   >
-                    <FiTrash2 />
+                    <Trash />
                   </button>
                 </div>
                 

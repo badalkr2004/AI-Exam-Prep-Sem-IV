@@ -1,7 +1,7 @@
 
 
 import LandingPage from '../components/LandingPage';
-import { toast } from 'sonner';
+
 
 const Landing = ({ onGetStarted }: { onGetStarted: () => void }) => {
   // const handleGetStarted = () => {

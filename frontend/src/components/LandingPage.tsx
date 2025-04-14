@@ -427,7 +427,7 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-exam-purple/10">
                 <div className="aspect-w-16 aspect-h-9">
                   <img 
-                    src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=800&q=80" 
+                    src={'assets/tool.png'}
                     alt="Student using laptop" 
                     className="object-cover w-full h-full rounded-2xl"
                   />

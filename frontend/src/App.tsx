@@ -20,7 +20,7 @@ import MindMap from './components/MindMap'
 import LearningModule from './components/LearningModule'
 import PodcastPlayer from './components/PodcastPlayer'
 import ExamPaperUploader from './components/ExamPaperUploader'
-import Landing from './pages/landing-page'
+
 import LandingPage from './components/LandingPage'
 
 // Define MathJax configuration options for better rendering
@@ -188,7 +188,7 @@ function App() {
   const [generatingPodcast, setGeneratingPodcast] = useState(false)
   const [podcastSubject, setPodcastSubject] = useState('')
   const [podcastTopic, setPodcastTopic] = useState('')
-  const [podcastDuration, setPodcastDuration] = useState(10) // Default 10 minutes
+  const [podcastDuration, setPodcastDuration] = useState(0) // Default 10 minutes
   
   // Store speech synthesis objects
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
@@ -1008,7 +1008,7 @@ function App() {
                               id="moduleSubject"
                               value={moduleSubject}
                               onChange={(e) => setModuleSubject(e.target.value)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               placeholder="e.g. Calculus"
                               disabled={generatingModule}
                             />
@@ -1022,7 +1022,7 @@ function App() {
                               id="moduleTopic"
                               value={moduleTopic}
                               onChange={(e) => setModuleTopic(e.target.value)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               placeholder="e.g. Integration"
                               disabled={generatingModule}
                             />
@@ -1131,7 +1131,7 @@ function App() {
                               id="podcastSubject"
                               value={podcastSubject}
                               onChange={(e) => setPodcastSubject(e.target.value)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               placeholder="e.g. Calculus"
                               disabled={generatingPodcast}
                             />
@@ -1145,7 +1145,7 @@ function App() {
                               id="podcastTopic"
                               value={podcastTopic}
                               onChange={(e) => setPodcastTopic(e.target.value)}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               placeholder="e.g. Integration"
                               disabled={generatingPodcast}
                             />
@@ -1155,13 +1155,13 @@ function App() {
                               Duration (minutes)
                             </label>
                             <input
-                              type="number"
+                              type="text"
                               id="podcastDuration"
                               value={podcastDuration}
                               onChange={(e) => setPodcastDuration(parseInt(e.target.value) || 10)}
                               min="5"
-                              max="60"
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              max="10"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               disabled={generatingPodcast}
                             />
                           </div>

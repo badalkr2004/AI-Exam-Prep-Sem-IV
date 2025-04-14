@@ -33,5 +33,6 @@ __pycache__
 ./chat_history
 
 
+./frontend/bun.lock
 
-
+./frontend/bun.lockb
