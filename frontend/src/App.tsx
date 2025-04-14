@@ -220,7 +220,7 @@ function App() {
   const fetchExamPapers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/exam/papers');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/exam/papers');
       setExamPapers(response.data.papers);
     } catch (err) {
       console.error('Failed to fetch exam papers:', err);
@@ -234,7 +234,7 @@ function App() {
   const fetchMindMaps = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/mindmaps');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/mindmaps');
       setMindMaps(response.data);
     } catch (err) {
       console.error('Failed to fetch mind maps:', err);
@@ -248,7 +248,7 @@ function App() {
   const fetchLearningModules = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/analyses');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/analyses');
       
       // Ensure each module has required properties
       const formattedModules = response.data.map((module: any) => ({
@@ -278,7 +278,7 @@ function App() {
   const fetchPodcasts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/podcasts');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/podcasts');
       setPodcasts(response.data);
     } catch (err) {
       console.error('Failed to fetch podcasts:', err);
@@ -299,7 +299,7 @@ function App() {
       setError('');
       setGeneratingMindMap(true);
       
-      const response = await axios.post('http://localhost:8000/mindmap/generate', {
+      const response = await axios.post('https://ai-backend.bitbrains.fun/mindmap/generate', {
         subject: mindMapSubject,
         topic: mindMapTopic.trim() || undefined
       });
@@ -330,7 +330,7 @@ function App() {
       setError('');
       setGeneratingModule(true);
       
-      const response = await axios.post('http://localhost:8000/analysis/generate', {
+      const response = await axios.post('https://ai-backend.bitbrains.fun/analysis/generate', {
         subject: moduleSubject,
         topic: moduleTopic.trim() || undefined
       });
@@ -361,7 +361,7 @@ function App() {
       setError('');
       setGeneratingPodcast(true);
       
-      const response = await axios.post('http://localhost:8000/podcast/generate', {
+      const response = await axios.post('https://ai-backend.bitbrains.fun/podcast/generate', {
         subject: podcastSubject,
         topic: podcastTopic.trim() || undefined,
         duration_minutes: podcastDuration
@@ -536,13 +536,13 @@ function App() {
         formData.append('file', file as File)
         formData.append('summary_type', summaryType)
 
-        response = await axios.post('http://localhost:8000/summarize', formData, {
+        response = await axios.post('https://ai-backend.bitbrains.fun/summarize', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
       } else {
-        response = await axios.post('http://localhost:8000/summarize-text', {
+        response = await axios.post('https://ai-backend.bitbrains.fun/summarize-text', {
           text: text,
           summary_type: summaryType
         });
@@ -561,7 +561,7 @@ function App() {
   // Chat handlers
   const fetchChatSessions = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/chat/sessions');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/chat/sessions');
       setChatSessions(response.data.sessions);
     } catch (err) {
       console.error('Failed to fetch chat sessions:', err);
@@ -571,7 +571,7 @@ function App() {
 
   const loadChatSession = async (sessionId: string) => {
     try {
-      const response = await axios.get(`http://localhost:8000/chat/session/${sessionId}`);
+      const response = await axios.get(`https://ai-backend.bitbrains.fun/chat/session/${sessionId}`);
       setCurrentSession(response.data);
     } catch (err) {
       console.error('Failed to load chat session:', err);
@@ -591,7 +591,7 @@ function App() {
 
   const deleteChatSession = async (sessionId: string) => {
     try {
-      await axios.delete(`http://localhost:8000/chat/session/${sessionId}`);
+      await axios.delete(`https://ai-backend.bitbrains.fun/chat/session/${sessionId}`);
       // Update list and reset current session if it was deleted
       if (currentSession?.id === sessionId) {
         setCurrentSession(null);
@@ -613,7 +613,7 @@ function App() {
     setLoading(true);
     
     try {
-      const response = await axios.post('http://localhost:8000/chat', {
+      const response = await axios.post('https://ai-backend.bitbrains.fun/chat', {
         session_id: currentSession?.id || null,
         message: chatMessage,
         use_context: useContext
@@ -667,7 +667,7 @@ function App() {
         setCurrentModule(existingModule);
       } else {
         // Fetch the specific module from the API
-        const response = await axios.get(`http://localhost:8000/analysis/${moduleId}`);
+        const response = await axios.get(`https://ai-backend.bitbrains.fun/analysis/${moduleId}`);
         const module = response.data;
         
         // Format the module data
