@@ -192,7 +192,6 @@ function App() {
   
   // Store speech synthesis objects
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Load data based on current view
   useEffect(() => {
