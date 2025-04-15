@@ -540,6 +540,18 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
         <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
         <p className="text-gray-600 mb-4">{subject}</p>
         
+        {/* ElevenLabs Badge */}
+        {audioUrl && (
+          <div className="mb-4">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              <svg className="mr-1.5 h-2 w-2 text-purple-400" fill="currentColor" viewBox="0 0 8 8">
+                <circle cx="4" cy="4" r="3" />
+              </svg>
+              Powered by ElevenLabs AI Voice
+            </span>
+          </div>
+        )}
+        
         {/* Audio player */}
         <div className="podcast-player">
           {!usingSpeechSynthesis && audioUrl && (
@@ -727,10 +739,18 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
             {showTranscript ? 'Hide Transcript' : 'Show Transcript'}
           </button>
           
-          <button className="inline-flex items-center text-gray-600 hover:text-gray-800">
-            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-            Download
-          </button>
+          {audioUrl && (
+            <a 
+              href={audioUrl}
+              download={`${title.replace(/\s+/g, '_')}_podcast.mp3`}
+              className="inline-flex items-center text-gray-600 hover:text-gray-800"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+              Download
+            </a>
+          )}
         </div>
         
         {/* Transcript */}

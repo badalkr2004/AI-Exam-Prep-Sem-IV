@@ -19,6 +19,13 @@ interface MindMapProps {
   nodes: Record<string, MindMapNode>;
 }
 
+interface Dimensions {
+  width: number;
+  height: number;
+  requiredWidth?: number;
+  requiredHeight?: number;
+}
+
 // Colors for different levels of nodes
 const COLORS = [
   '#4F46E5', // Indigo 600
@@ -70,6 +77,7 @@ const mathJaxOptions = {
 const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dimensionsRef = useRef<Dimensions>({ width: 1500, height: 1200 }); // Ref for dimensions
   const [canvasSize, setCanvasSize] = useState({ width: 1500, height: 1200 }); // Initial canvas size
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -83,6 +91,7 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
   const [animationFrame, setAnimationFrame] = useState(0); // For subtle animation
   const [nodeScales, setNodeScales] = useState<Record<string, number>>({}); // For hover animation
   const [devicePixelRatio, setDevicePixelRatio] = useState(1);
+  const layoutTimeoutRef = useRef<number | null>(null);
 
   // Set device pixel ratio for high resolution rendering
   useEffect(() => {
@@ -94,11 +103,16 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
     const resizeCanvas = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        // Update canvas logical size based on container
-        setCanvasSize(prevSize => ({
-          width: Math.max(width, prevSize.width),
-          height: Math.max(height, prevSize.height)
-        }));
+        // Store dimensions in ref
+        dimensionsRef.current = {
+          width: Math.max(width, dimensionsRef.current.width),
+          height: Math.max(height, dimensionsRef.current.height)
+        };
+        // Update state only if significantly different
+        if (Math.abs(canvasSize.width - dimensionsRef.current.width) > 50 ||
+            Math.abs(canvasSize.height - dimensionsRef.current.height) > 50) {
+          setCanvasSize(dimensionsRef.current);
+        }
       }
     };
 
@@ -178,12 +192,13 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
     setNodeLevels(levels);
   }, [rootNodeId, nodes]);
 
-  // Calculate node positions with improved layout algorithm
+  // Calculate node positions with improved layout algorithm - separated from canvas sizing
   useEffect(() => {
     if (!rootNodeId || !nodes[rootNodeId] || Object.keys(nodeLevels).length === 0) {
       return;
     }
     
+    // Use a single effect for positioning only, not canvas sizing
     const positions: Record<string, { x: number, y: number }> = {};
     let maxWidth = 0;
     let maxHeight = 0;
@@ -197,9 +212,12 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
       nodesByLevel[level].push(nodeId);
     });
     
+    // Get current dimensions from ref to avoid dependency on state
+    const { width: canvasWidth, height: canvasHeight } = dimensionsRef.current;
+    
     // Position root node
     positions[rootNodeId] = { 
-      x: canvasSize.width / 2, 
+      x: canvasWidth / 2, 
       y: 100 
     };
     
@@ -209,8 +227,8 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
       if (level === 0) return; // Skip root node
       
       const nodesInLevel = nodeIds.length;
-      const levelWidth = canvasSize.width * 0.8;
-      const startX = (canvasSize.width - levelWidth) / 2;
+      const levelWidth = canvasWidth * 0.8;
+      const startX = (canvasWidth - levelWidth) / 2;
       
       // For each node in this level
       nodeIds.forEach((nodeId, i) => {
@@ -255,13 +273,14 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
         const level = parseInt(levelStr);
         if (level === 0) return;
         
-        // Sort nodes by x position
-        nodeIds.sort((a, b) => positions[a].x - positions[b].x);
+        // Sort nodes by x position - create a new array to avoid mutation
+        const sortedNodes = [...nodeIds].filter(id => positions[id] !== undefined)
+          .sort((a, b) => positions[a].x - positions[b].x);
         
         // Check for overlaps and fix them
-        for (let i = 0; i < nodeIds.length - 1; i++) {
-          const current = nodeIds[i];
-          const next = nodeIds[i + 1];
+        for (let i = 0; i < sortedNodes.length - 1; i++) {
+          const current = sortedNodes[i];
+          const next = sortedNodes[i + 1];
           
           if (!positions[current] || !positions[next]) continue;
           
@@ -286,14 +305,48 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
       if (!resolveOverlaps()) break;
     }
     
-    // Update canvas size if needed
-    setCanvasSize({ 
-      width: Math.max(canvasSize.width, maxWidth + 200),
-      height: Math.max(canvasSize.height, maxHeight + 200)
-    });
-    
+    // Set node positions
     setNodePositions(positions);
-  }, [rootNodeId, nodes, nodeLevels, canvasSize.width, canvasSize.height]);
+    
+    // Store required dimensions in ref
+    dimensionsRef.current.requiredWidth = Math.max(canvasWidth, maxWidth + 200);
+    dimensionsRef.current.requiredHeight = Math.max(canvasHeight, maxHeight + 200);
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rootNodeId, JSON.stringify(nodeLevels), JSON.stringify(Object.keys(nodes))]);
+  
+  // Completely separate effect for updating canvas size
+  useEffect(() => {
+    if (!dimensionsRef.current.requiredWidth || !dimensionsRef.current.requiredHeight) {
+      return;
+    }
+    
+    // Clear any existing timeout
+    if (layoutTimeoutRef.current !== null) {
+      clearTimeout(layoutTimeoutRef.current);
+    }
+    
+    // Only update canvas size if needed
+    if ((dimensionsRef.current.requiredWidth > canvasSize.width) || 
+        (dimensionsRef.current.requiredHeight > canvasSize.height)) {
+      
+      // Use timeout to break render cycle
+      layoutTimeoutRef.current = window.setTimeout(() => {
+        setCanvasSize({
+          width: dimensionsRef.current.requiredWidth || canvasSize.width,
+          height: dimensionsRef.current.requiredHeight || canvasSize.height
+        });
+        layoutTimeoutRef.current = null;
+      }, 100);
+    }
+    
+    return () => {
+      if (layoutTimeoutRef.current !== null) {
+        clearTimeout(layoutTimeoutRef.current);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodePositions]);
   
   // Subtle breathing animation effect
   useEffect(() => {
@@ -318,7 +371,7 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
     });
     
     setNodeScales(newScales);
-  }, [hoveredNode, selectedNode, animationFrame, nodes, nodeScales]);
+  }, []);
   
   // Draw the mind map
   useEffect(() => {
@@ -714,7 +767,7 @@ const MindMap: React.FC<MindMapProps> = ({ title, rootNodeId, nodes }) => {
           </div>
         )}
         
-        {(hoveredNode || selectedNode) && nodes[hoveredNode || selectedNode!]?.description && (
+        {(hoveredNode || selectedNode) && nodes[hoveredNode || selectedNode!].description && (
           <div className="absolute bottom-4 left-4 right-4 max-w-xl mx-auto bg-white p-5 rounded-xl shadow-xl border border-gray-200 transform transition-all duration-200 ease-in-out">
             <h3 className="font-medium text-lg text-gray-900 mb-2">
               {nodes[hoveredNode || selectedNode!].hasLatex ? (
