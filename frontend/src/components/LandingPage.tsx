@@ -68,7 +68,7 @@ const stats = [
   { value: '250+', label: 'Universities' },
 ];
 
-function LandingPage() {
+function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
 
   
   const scrollToFeatures = () => {
@@ -117,7 +117,7 @@ function LandingPage() {
               transition={{ duration: 0.6, delay: 0.6 }}
               className="mt-8 flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <GradientButton  className="px-8 py-5 text-lg cursor-pointer">
+              <GradientButton onClick={onGetStarted} className="px-8 py-5 text-lg cursor-pointer">
                 Get started <ArrowRight className="ml-2 h-4 w-4 inline" />
               </GradientButton>
               
@@ -411,7 +411,7 @@ function LandingPage() {
               </div>
               
               <div className="mt-10">
-                <GradientButton className='cursor-pointer' >
+                <GradientButton className='cursor-pointer' onClick={onGetStarted}>
                   Start your journey now <ArrowRight className="ml-2 h-4 w-4 inline" />
                 </GradientButton>
               </div>
@@ -491,7 +491,7 @@ function LandingPage() {
                   
                   <GradientButton 
                     variant="secondary" 
-                    
+                    onClick={onGetStarted} 
                     className="px-8 py-3 text-lg shadow-xl cursor-pointer"
                   >
                     Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4 inline" />
@@ -538,7 +538,7 @@ function LandingPage() {
                     
                     <div className="mt-6 text-center">
                       <Button 
-                        
+                        onClick={onGetStarted} 
                         variant="secondary" 
                         className="border-white/30 bg-blue-500 text-white hover:bg-white/20 w-full cursor-pointer"
                       >

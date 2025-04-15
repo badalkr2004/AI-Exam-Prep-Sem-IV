@@ -27,10 +27,10 @@ const Footer = () => {
             >
               <div className="flex items-center mb-4">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-exam-purple to-exam-blue flex items-center justify-center text-white text-xl font-bold">
-                  E
+                  A
                 </div>
                 <h3 className="ml-2 text-xl font-bold bg-gradient-to-r from-exam-purple to-exam-blue bg-clip-text text-transparent">
-                  EXAMprep.
+                  AceExams
                 </h3>
               </div>
               <p className="text-gray-600 mb-4">

@@ -1,6 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 import os
@@ -22,10 +21,6 @@ from langchain_chroma import Chroma
 from langchain_core.vectorstores import VectorStore
 import chromadb
 import shutil
-from elevenlabs import ElevenLabs, Voice
-import io
-import base64
-import requests
 
 # Load environment variables
 load_dotenv()
@@ -41,7 +36,7 @@ app = FastAPI(title="Exam Preparation & Learning Tool API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://examprep.bitbrains.fun","http://localhost:5173"],  # Vite's default port
+    allow_origins=["https://examprep.bitbrains.fun"],  # Vite's default port
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -148,15 +143,11 @@ EXAM_PAPERS_DIR = "exam_papers"
 MINDMAPS_DIR = "mindmaps"
 LEARNING_MODULES_DIR = "learning_modules"
 PODCASTS_DIR = "podcasts"
-PODCAST_AUDIO_DIR = "podcasts/audio"
 
 # Create necessary directories
 for directory in [CHAT_SESSIONS_DIR, VECTOR_DB_DIR, EXAM_PAPERS_DIR, 
-                 MINDMAPS_DIR, LEARNING_MODULES_DIR, PODCASTS_DIR, PODCAST_AUDIO_DIR]:
+                 MINDMAPS_DIR, LEARNING_MODULES_DIR, PODCASTS_DIR]:
     os.makedirs(directory, exist_ok=True)
-
-# Mount the podcast audio directory to make files accessible via HTTP
-app.mount("/podcasts/audio", StaticFiles(directory=PODCAST_AUDIO_DIR), name="podcast_audio")
 
 # Custom prompt for mathematical content - Summarize
 MATH_SUMMARIZE_PROMPT = """
@@ -177,6 +168,108 @@ IMPORTANT FORMATTING INSTRUCTIONS:
 Text: {text}
 
 Summarize:
+"""
+
+# Custom prompt for mathematical content - Elaborate
+MATH_ELABORATE_PROMPT = """
+You are an expert in mathematics and statistics. Please elaborate on the following text, 
+providing more details and context while maintaining accuracy.
+
+IMPORTANT FORMATTING INSTRUCTIONS:
+1. Format ALL mathematical expressions using Markdown-compatible LaTeX syntax:
+   - For inline formulas, use single dollar signs: $E=mc^2$
+   - For display/block formulas, use double dollar signs: $$\\sum_{{i=1}}^{{n}} i = \\frac{{n(n+1)}}{{2}}$$
+2. Ensure all special LaTeX characters are properly escaped with double backslashes (e.g., use \\\\alpha for α, \\\\beta for β)
+3. Always use double braces for LaTeX subscripts and superscripts: $x_{{i}}$ not $x_i$
+4. Use proper LaTeX spacing commands like \\\\quad and \\\\, for spacing
+5. For cases and conditions, use \\\\begin{{cases}} ... \\\\end{{cases}} with explicit newlines
+6. For matrices, use the proper LaTeX environment: $$\\\\begin{{matrix}} a & b \\\\\\ c & d \\\\end{{matrix}}$$
+7. Verify that all LaTeX expressions are properly balanced with matching delimiters
+
+Text: {text}
+
+Elaborate:
+"""
+
+# Custom prompt for mathematical content - Learning mode
+MATH_LEARN_PROMPT = """
+You are a world-class mathematics and statistics educator. Your task is to explain the following content 
+in a way that helps someone learn the topic deeply. Assume the reader is a student who wants to 
+truly understand the concepts, not just memorize formulas.
+
+For each concept, you should:
+1. Explain the intuition behind it in plain language
+2. Show the formal definition with proper notation
+3. Provide a simple example that illustrates the concept
+4. Connect it to other related concepts when relevant
+5. Highlight common misconceptions or pitfalls
+
+IMPORTANT FORMATTING INSTRUCTIONS:
+1. Format ALL mathematical expressions using Markdown-compatible LaTeX syntax:
+   - For inline formulas, use single dollar signs: $E=mc^2$
+   - For display/block formulas, use double dollar signs: $$\\sum_{{i=1}}^{{n}} i = \\frac{{n(n+1)}}{{2}}$$
+2. Ensure all special LaTeX characters are properly escaped with double backslashes (e.g., use \\\\alpha for α, \\\\beta for β)
+3. Always use double braces for LaTeX subscripts and superscripts: $x_{{i}}$ not $x_i$
+4. Use proper LaTeX spacing commands like \\\\quad and \\\\, for spacing
+5. For cases and conditions, use \\\\begin{{cases}} ... \\\\end{{cases}} with explicit newlines
+6. For matrices, use the proper LaTeX environment: $$\\\\begin{{matrix}} a & b \\\\\\ c & d \\\\end{{matrix}}$$
+7. Verify that all LaTeX expressions are properly balanced with matching delimiters
+8. Use markdown headings (##) to organize the content into clear sections
+
+Text: {text}
+
+Explanation:
+"""
+
+# Chat system prompt
+CHAT_SYSTEM_PROMPT = """
+You are an advanced AI assistant specialized in educational content, particularly in mathematics and statistics.
+
+You have several capabilities:
+1. Answering questions about mathematical and statistical concepts with clear explanations
+2. Providing step-by-step solutions to mathematical problems
+3. Explaining complex topics in an accessible way
+4. Formatting mathematical expressions properly using LaTeX syntax
+
+When formatting your responses:
+1. Use $inline math$ for simple expressions (e.g. $x^2 + 5$)
+2. Use $$display math$$ for complex formulas or equations
+3. Ensure all special LaTeX characters are properly escaped with double backslashes (e.g., use \\\\alpha for α)
+4. Always use double braces for LaTeX subscripts and superscripts: $x_{{i}}$ not $x_i$
+5. For cases and conditions, use \\\\begin{{cases}} ... \\\\end{{cases}} with explicit newlines
+6. For piecewise functions, use proper LaTeX syntax:
+   $$f(x,y) = \\begin{{cases}}
+   2e^{{-(x+y)}} & \\text{{for }} x > 0 \\text{{ and }} y > 0 \\\\
+   0 & \\text{{otherwise}}
+   \\end{{cases}}$$
+7. Make sure all LaTeX expressions have balanced delimiters and proper spacing
+
+Always strive to give accurate, helpful information while being mindful of potential misconceptions.
+"""
+
+# New prompts for exam preparation features
+EXAM_PAPER_PROCESSING_PROMPT = """
+You are an expert in processing and analyzing academic examination papers. 
+Your task is to extract key information from the given exam paper text.
+
+Please identify:
+1. The subject/domain of the exam
+2. The main topics covered
+3. The types of questions (MCQ, short answer, essay, numerical, etc.)
+4. The difficulty level of questions
+5. Key concepts being tested
+
+Return your analysis focusing only on the factual content of the paper.
+
+IMPORTANT FORMATTING INSTRUCTIONS:
+1. Format ALL mathematical expressions using Markdown-compatible LaTeX syntax:
+   - For inline formulas, use single dollar signs: $E=mc^2$
+   - For display/block formulas, use double dollar signs: $$\\sum_{{i=1}}^{{n}} i = \\frac{{n(n+1)}}{{2}}$$
+2. Ensure all special LaTeX characters are properly escaped with double backslashes
+
+Exam Paper Text: {text}
+
+Analysis:
 """
 
 # Vector database and embedding functions
@@ -828,7 +921,7 @@ def get_all_podcasts() -> List[Podcast]:
     return podcasts
 
 def generate_podcast_script(subject: str, topic: Optional[str] = None, duration_minutes: int = 10) -> Podcast:
-    """Generate a podcast script for a subject and optional topic, and convert to audio."""
+    """Generate a podcast script for a subject and optional topic."""
     try:
         # Get relevant context from vector store
         search_query = f"{subject} {topic if topic else ''}"
@@ -868,119 +961,15 @@ Create a podcast script:
         result = llm.invoke(messages)
         transcript = result.content
         
-        # Create Podcast object with a unique ID
-        podcast_id = str(uuid.uuid4())
+        # Create Podcast object
         podcast = Podcast(
-            id=podcast_id,
             title=f"{subject}{' - ' + topic if topic else ''} Podcast",
             subject=subject,
             transcript=transcript,
             duration_seconds=duration_minutes * 60  # Estimate
         )
         
-        # Generate audio from transcript using ElevenLabs
-        try:
-            # Get ElevenLabs API key from environment variable
-            eleven_api_key = os.getenv("ELEVENLABS_API_KEY")
-            if not eleven_api_key:
-                print("Warning: ELEVENLABS_API_KEY not found. Skipping audio generation.")
-            else:
-                # Initialize ElevenLabs client
-                client = ElevenLabs(api_key=eleven_api_key)
-                
-                # Create audio file path
-                audio_filename = f"{podcast_id}.mp3"
-                audio_path = os.path.join(PODCAST_AUDIO_DIR, audio_filename)
-                
-                try:
-                    # First attempt - streaming approach
-                    print(f"Calling ElevenLabs API to generate audio for podcast: {podcast_id}")
-                    audio = client.text_to_speech.convert(
-                        voice_id="FGY2WhTYpPnrIDTdsKH5",  # Default voice ID
-                        output_format="mp3_44100_128",
-                        text=transcript,
-                        model_id="eleven_multilingual_v2",
-                        # stream=True  # Use streaming mode to handle large responses
-                    )
-                    
-                    # Debug audio response type
-                    print(f"ElevenLabs response type: {type(audio)}")
-                    print(f"Saving audio to: {audio_path}")
-                    
-                    # Handle the response whether it's a generator (stream) or bytes
-                    with open(audio_path, "wb") as f:
-                        if hasattr(audio, '__iter__') and not isinstance(audio, bytes):
-                            # If it's a generator/iterator, read chunks and write them
-                            chunk_count = 0
-                            total_bytes = 0
-                            for chunk in audio:
-                                chunk_size = len(chunk)
-                                total_bytes += chunk_size
-                                f.write(chunk)
-                                chunk_count += 1
-                            print(f"Wrote {chunk_count} chunks, total of {total_bytes} bytes")
-                        else:
-                            # If it's bytes, write directly
-                            f.write(audio)
-                            print(f"Wrote {len(audio)} bytes directly")
-                    
-                    print(f"Audio file saved successfully: {audio_filename}")
-                    
-                except Exception as streaming_error:
-                    # Fallback - direct file generation
-                    print(f"Streaming approach failed: {str(streaming_error)}")
-                    print("Trying alternative approach...")
-                    
-                    # Try a direct approach with file output
-                    try:
-                        # Different method that generates and directly saves the file
-                        
-                        # ElevenLabs API endpoint for text-to-speech
-                        url = f"https://api.elevenlabs.io/v1/text-to-speech/FGY2WhTYpPnrIDTdsKH5"
-                        
-                        headers = {
-                            "Accept": "audio/mpeg",
-                            "Content-Type": "application/json",
-                            "xi-api-key": eleven_api_key
-                        }
-                        
-                        data = {
-                            "text": transcript,
-                            "model_id": "eleven_multilingual_v2",
-                            "voice_settings": {
-                                "stability": 0.5,
-                                "similarity_boost": 0.5
-                            }
-                        }
-                        
-                        print("Making direct request to ElevenLabs API...")
-                        response = requests.post(url, json=data, headers=headers)
-                        
-                        if response.status_code == 200:
-                            # Save the audio file
-                            with open(audio_path, "wb") as f:
-                                f.write(response.content)
-                            print(f"Direct request successful. Audio saved to {audio_path}")
-                        else:
-                            print(f"Direct request failed: {response.status_code} - {response.text}")
-                            raise Exception(f"Direct API request failed: {response.status_code}")
-                    
-                    except Exception as direct_error:
-                        print(f"Both approaches failed. Error: {str(direct_error)}")
-                        raise Exception(f"Failed to generate audio: {str(streaming_error)} AND {str(direct_error)}")
-                
-                # Update podcast with audio path
-                podcast.audio_path = f"/podcasts/audio/{audio_filename}"
-                
-                # Get audio duration if possible
-                # This would require a library like pydub to get actual duration
-                # For now, we'll keep the estimate based on words
-                
-        except Exception as audio_error:
-            print(f"Error generating audio: {str(audio_error)}")
-            # Continue without audio, just using the transcript
-        
-        # Save podcast metadata
+        # Save podcast
         save_podcast(podcast)
         return podcast
         
