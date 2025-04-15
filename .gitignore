@@ -8,8 +8,6 @@ __pycache__
 
 *.pdf
 *.txt
-*.md
-*.json
 *.csv
 *.jsonl
 *.jsonl.gz
@@ -23,15 +21,13 @@ __pycache__
 
 .env
 
-./frontend/node_modules  
-./vectorstore
-./learning_modules
-./mindmaps
-./exam_papers
-./podcasts
-./chat_sessions
-./chat_history
+
+vectorstore/*.json
+learning_modules/*.json
+mindmaps/*.json
+exam_papers/*.json
+podcasts/*.json
+chat_sessions/*.json
+chat_history/*.json
 
 
-./frontend/bun.lock
-./frontend/bun.lockb

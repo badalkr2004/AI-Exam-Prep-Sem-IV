@@ -70,7 +70,7 @@ const MarkdownWithMath = ({ children }: { children: string }) => {
 
 // Define types
 type InputType = 'landing' | 'exam' | 'mindmap' | 'analysis' | 'podcast' | 'chat' | 'pdf' | 'text';
-type SummaryType = 'summarize' | 'elaborate' | 'learn';
+// type SummaryType = 'summarize' | 'elaborate' | 'learn';
 
 // MindMap types
 interface MindMapNode {
@@ -147,15 +147,16 @@ function App() {
   const [showLandingPage, setShowLandingPage] = useState(true)
   
   // Common state
-  const [result, setResult] = useState<string>('')
+  // const [result, setResult] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false)
+ 
+  // const [isSpeaking, setIsSpeaking] = useState<boolean>(false)
   
   // PDF/Text state from old version
-  const [file, setFile] = useState<File | null>(null)
-  const [text, setText] = useState<string>('')
-  const [summaryType] = useState<SummaryType>('summarize')
+  // const [file, setFile] = useState<File | null>(null)
+  // const [text, setText] = useState<string>('')
+  // const [summaryType] = useState<SummaryType>('summarize')
   
   // Chat state
   const [chatSessions, setChatSessions] = useState<SessionListItem[]>([])
@@ -388,18 +389,18 @@ function App() {
   };
 
   // Plain text version of the result (without markdown)
-  const getPlainTextResult = () => {
-    // Strip markdown syntax for better text-to-speech
-    return result
-      .replace(/\$\$(.*?)\$\$/g, '') // Remove block math formulas
-      .replace(/\$(.*?)\$/g, '') // Remove inline math formulas
-      .replace(/#+\s/g, '') // Remove markdown headings
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Convert bold to plain text
-      .replace(/\*(.*?)\*/g, '$1') // Convert italic to plain text
-      .replace(/\[(.*?)\]\((.*?)\)/g, '$1') // Convert links to just the text
-      .replace(/```.*?```/gs, '') // Remove code blocks
-      .replace(/`(.*?)`/g, '$1'); // Remove inline code
-  };
+  // const getPlainTextResult = () => {
+  //   // Strip markdown syntax for better text-to-speech
+  //   return result
+  //     .replace(/\$\$(.*?)\$\$/g, '') // Remove block math formulas
+  //     .replace(/\$(.*?)\$/g, '') // Remove inline math formulas
+  //     .replace(/#+\s/g, '') // Remove markdown headings
+  //     .replace(/\*\*(.*?)\*\*/g, '$1') // Convert bold to plain text
+  //     .replace(/\*(.*?)\*/g, '$1') // Convert italic to plain text
+  //     .replace(/\[(.*?)\]\((.*?)\)/g, '$1') // Convert links to just the text
+  //     .replace(/```.*?```/gs, '') // Remove code blocks
+  //     .replace(/`(.*?)`/g, '$1'); // Remove inline code
+  // };
 
   // Initialize speech synthesis
   const initSpeechSynthesis = () => {
@@ -649,7 +650,7 @@ function App() {
     
     // Cleanup on unmount
     return () => {
-      if (speechSynthesisRef.current && isSpeaking) {
+      if (speechSynthesisRef.current && true) {
         speechSynthesisRef.current.cancel();
       }
     };
