@@ -27,7 +27,7 @@ const LearningModulePage = () => {
 
   const fetchLearningModules = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/analyses');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/analyses');
       console.log("Learning modules response:", response.data);
       setModules(response.data || []);
     } catch (error) {
@@ -44,7 +44,7 @@ const LearningModulePage = () => {
     
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/analysis/generate', {
+      const response = await axios.post('https://ai-backend.bitbrains.fun/analysis/generate', {
         subject,
         topic: topic || undefined
       });

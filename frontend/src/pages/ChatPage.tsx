@@ -62,7 +62,7 @@ const ChatPage = () => {
 
   const fetchChatSessions = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/chat/sessions');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/chat/sessions');
       console.log("Chat sessions response:", response.data);
       setSessions(response.data?.sessions || []);
     } catch (error) {
@@ -74,7 +74,7 @@ const ChatPage = () => {
   const loadChatSession = async (sessionId: string) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`http://localhost:8000/chat/session/${sessionId}`);
+      const response = await axios.get(`https://ai-backend.bitbrains.fun/chat/session/${sessionId}`);
       console.log("Loaded session:", response.data);
       setCurrentSession(response.data);
     } catch (error) {
@@ -117,7 +117,7 @@ const ChatPage = () => {
     setInputMessage('');
 
     try {
-      const response = await axios.post('http://localhost:8000/chat', {
+      const response = await axios.post('https://ai-backend.bitbrains.fun/chat', {
         session_id: currentSession.id === 'new' ? null : currentSession.id,
         message: inputMessage,
         use_context: true
@@ -177,7 +177,7 @@ const ChatPage = () => {
     
     if (window.confirm('Are you sure you want to delete this chat session?')) {
       try {
-        await axios.delete(`http://localhost:8000/chat/session/${sessionId}`);
+        await axios.delete(`https://ai-backend.bitbrains.fun/chat/session/${sessionId}`);
         if (currentSession?.id === sessionId) {
           setCurrentSession(null);
         }

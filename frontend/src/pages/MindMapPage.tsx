@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Define API URL from environment or use default
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ai-backend.bitbrains.fun';
 
 interface MindMapNode {
   id: string;

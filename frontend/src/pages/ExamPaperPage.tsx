@@ -63,7 +63,7 @@ const ExamPaperPage = () => {
   const fetchExamPapers = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://localhost:8000/exam/papers');
+      const response = await axios.get('https://ai-backend.bitbrains.fun/exam/papers');
       console.log("Exam papers response:", response.data);
       setExamPapers(response.data?.papers || []);
     } catch (error) {
@@ -232,7 +232,7 @@ const ExamPaperPage = () => {
                 </div>
                 
                 <a
-                  href={`http://localhost:8000${selectedPaper.file_path}`}
+                  href={`https://ai-backend.bitbrains.fun${selectedPaper.file_path}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg shadow-md transform transition-transform duration-200 hover:scale-105"
