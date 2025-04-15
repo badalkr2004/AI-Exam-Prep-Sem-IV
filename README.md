@@ -40,7 +40,7 @@ Send a POST request to `/summarize` with:
 
 Example using curl:
 ```bash
-curl -X POST "http://localhost:8000/summarize" \
+curl -X POST "https://ai-backend.bitbrains.fun/summarize" \
      -H "accept: application/json" \
      -H "Content-Type: multipart/form-data" \
      -F "file=@your_file.pdf" \
